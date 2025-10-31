@@ -1,0 +1,24 @@
+{
+  "name": "highway-delite-fullstack",
+  "version": "1.0.0",
+  "description": "A fullstack web application for booking travel experiences",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm run dev",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "setup": "node setup.js",
+    "setup-dev": "node setup-dev.js",
+    "test-setup": "node test-setup.js",
+    "seed": "cd backend && node seed.js"
+  },
+  "keywords": ["travel", "booking", "experiences", "fullstack"],
+  "author": "Highway Delite Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
