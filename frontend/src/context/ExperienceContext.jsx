@@ -65,15 +65,20 @@ const ExperienceProvider = ({ children }) => {
   // Fetch experiences
   const fetchExperiences = async (searchQuery = '') => {
     dispatch({ type: 'SET_LOADING', payload: true });
+    console.log('Fetching experiences with search:', searchQuery);
     const result = await apiCall(experiencesAPI.getAll, searchQuery);
     
+    console.log('Fetch experiences result:', result);
+    
     if (result.success) {
+      console.log('Experiences loaded:', result.data?.length || 0);
       dispatch({ type: 'SET_EXPERIENCES', payload: result.data });
       
       if (searchQuery && result.data.length === 0) {
         showWarning('No experiences found for your search');
       }
     } else {
+      console.error('Failed to fetch experiences:', result.error, result.status, result.details);
       dispatch({ type: 'SET_ERROR', payload: result.error });
       showError(result.error);
     }

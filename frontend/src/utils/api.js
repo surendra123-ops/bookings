@@ -1,21 +1,53 @@
 import axios from 'axios';
 
+// Get API base URL - Vite env vars are available at build time
+const getBaseURL = () => {
+  const envURL = import.meta.env.VITE_API_BASE_URL;
+  
+  // If environment variable is set, use it
+  if (envURL) {
+    console.log('API Base URL from env:', envURL);
+    return envURL;
+  }
+  
+  // Fallback: In production on Render, try to detect backend URL
+  // This is a fallback if env var isn't set
+  if (import.meta.env.PROD) {
+    // If on Render static site, you need to set VITE_API_BASE_URL
+    console.warn('VITE_API_BASE_URL not set! Using /api fallback (will not work with separate deployments)');
+    return '/api';
+  }
+  
+  // Development fallback
+  console.log('Using development API base URL: /api');
+  return '/api';
+};
+
+const baseURL = getBaseURL();
+
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: baseURL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+// Log the configured base URL for debugging
+console.log('Axios configured with baseURL:', baseURL);
+
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
+    // Log request URL for debugging
+    const fullURL = `${config.baseURL}${config.url}`;
+    console.log('API Request:', config.method?.toUpperCase(), fullURL);
     // Add any auth tokens here if needed
     return config;
   },
   (error) => {
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -23,9 +55,22 @@ api.interceptors.request.use(
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => {
+    console.log('API Response:', response.status, response.config.url);
     return response;
   },
   (error) => {
+    // Log the error for debugging
+    console.error('API Error:', {
+      message: error.message,
+      url: error.config?.url,
+      baseURL: error.config?.baseURL,
+      fullURL: `${error.config?.baseURL || ''}${error.config?.url || ''}`,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      request: error.request ? 'Network error - no response received' : null
+    });
+    
     // Handle different types of errors
     if (error.response) {
       // Server responded with error status
